@@ -1,0 +1,16 @@
+[Unit]
+Description=ooklaserver
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/OoklaSpeedtest
+ExecStart=/opt/OoklaSpeedtest/OoklaServer --daemon --pidfile=/run/OoklaServer.pid
+PIDFile=/run/OoklaServer.pid
+ExecStop=/bin/kill -s TERM $MAINPID
+LimitNOFILE=16384
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
