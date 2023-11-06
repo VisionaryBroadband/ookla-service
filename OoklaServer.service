@@ -6,8 +6,8 @@ After=network.target
 User=root
 Group=root
 WorkingDirectory=/opt/OoklaSpeedtest
-ExecStart=/opt/OoklaSpeedtest/OoklaServer --daemon --pidfile=/run/OoklaServer.pid
-PIDFile=/run/OoklaServer.pid
+ExecStart=/opt/OoklaSpeedtest/OoklaServer --daemon --pidfile=/opt/OoklaSpeedtest/OoklaServer.pid
+PIDFile=/opt/OoklaSpeedtest/OoklaServer.pid
 ExecStop=/bin/kill -s TERM $MAINPID
 LimitNOFILE=16384
 TimeoutStopSec=5
