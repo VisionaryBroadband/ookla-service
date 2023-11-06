@@ -27,7 +27,7 @@ include:
 4. If the installation completed successfully, you will stop the daemon and then start and enable the service,
 so it will run automatically on each boot.
    1. ```shell
-      ./ooklaserver.sh stop
+      /bin/sh ooklaserver.sh stop
       ```
    2. ```shell
       sudo systemctl start OoklaServer \
