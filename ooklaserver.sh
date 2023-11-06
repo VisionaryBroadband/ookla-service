@@ -141,6 +141,20 @@ download_install() {
 		exit 1
 	fi
 
+	# Deploy service unit and reload the daemon
+  printf "Would you like to install this as a Service for start on boot functionality? Please confirm (y/n) > "
+  read -r svcResponse
+  if [ "$svcResponse" = "y" ]; then
+  		printf "You will be prompted for a sudo password next to make the symbolic link to /run/ and to reload the systemctl-daemon"
+  		if ! sudo ln -s "${INSTALL_DIR}/OoklaServer.service" "/etc/systemd/system/OoklaServer.service"; then
+  		  printf "Failed to install OoklaServer service!"
+  		  exit 1
+      fi
+      if ! sudo systemctl daemon-reload; then
+        printf "Failed to reload the systemctl daemon"
+        exit 1
+      fi
+  fi
 }
 
 restart_if_running() {
@@ -235,26 +249,15 @@ prompt=1
 action=help
 while [ "$1" != "" ]; do
     case $1 in
-		install )				action=install
-								;;
-		stop )					action=stop
-								;;
-		start )					action=start
-								;;
-		restart )				action=restart
-								;;
-		help )					action=help
-								;;
-        -i | --installdir )        shift
-                                INSTALL_DIR=$1
-                                ;;
-        -f | --force )    		prompt=0
-                                ;;
-        -h | --help )           display_usage
-                                exit
-                                ;;
-        * )                     display_usage
-                                exit 1
+      install ) action=install;;
+      stop ) action=stop;;
+      start ) action=start;;
+      restart ) action=restart;;
+      help ) action=help;;
+      -i | --installdir ) shift && INSTALL_DIR=$1;;
+      -f | --force ) prompt=0;;
+      -h | --help ) display_usage && exit;;
+      * ) display_usage && exit 1
     esac
     shift
 done
@@ -270,7 +273,6 @@ fi
 if [ "$action" = "stop" ]; then
 	stop_if_running
 fi
-
 
 if [ "$action" = "help" ]; then
 	display_usage
@@ -292,7 +294,7 @@ if [ "$action" = "install" ]; then
 	echo ""
 	echo "We strongly recommend following instructions at"
 	echo ""
-	echo "   https://www.ookla.com/support/a87011938/"
+	echo "   https://support.ookla.com/hc/en-us/articles/234578528-OoklaServer-Installation-Linux-Unix"
 	echo ""
 	echo "to ensure your daemon starts automatically when the system reboots"
 	echo ""
