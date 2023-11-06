@@ -32,7 +32,7 @@ so it will run automatically on each boot.
    2. ```shell
       sudo systemctl start OoklaServer \
       && sudo systemctl enable OoklaServer \
-      && Sudo systemctl status OoklaServer
+      && sudo systemctl status OoklaServer
       ```
       
 ### References
