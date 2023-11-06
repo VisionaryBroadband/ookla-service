@@ -146,10 +146,13 @@ download_install() {
   read -r svcResponse
   if [ "$svcResponse" = "y" ]; then
   		printf "You will be prompted for a sudo password next to make the symbolic link to /run/ and to reload the systemctl-daemon"
-  		if ! sudo ln -s "${INSTALL_DIR}/OoklaServer.service" "/etc/systemd/system/OoklaServer.service"; then
+  		# Create the Symbolic link
+  		sourceFile=$(readlink -f OoklaServer.service)
+  		if ! sudo ln -s "${sourceFile}" "/etc/systemd/system/OoklaServer.service"; then
   		  printf "Failed to install OoklaServer service!"
   		  exit 1
       fi
+      # Reload the systemctl daemon
       if ! sudo systemctl daemon-reload; then
         printf "Failed to reload the systemctl daemon"
         exit 1
