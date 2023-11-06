@@ -14,8 +14,7 @@ include:
       ```
 2. Clone this repo into your working directory
    1. ```shell
-      git clone https://github.com/VisionaryBroadband/ookla-service.git ./ \
-      && chmod +x ooklaserver.sh
+      git clone https://github.com/VisionaryBroadband/ookla-service.git ./
       ```
 3. Run the installation script to pull the latest daemon files from Ookla
    1. ```shell
