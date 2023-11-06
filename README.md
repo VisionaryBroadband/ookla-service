@@ -19,7 +19,7 @@ include:
       ```
 3. Run the installation script to pull the latest daemon files from Ookla
    1. ```shell
-      ./ooklaserver.sh install
+      /bin/sh ooklaserver.sh install
       ```
    2. The script will attempt to detect the platform, if that fails please select your platform from the prompt.
    3. Next the script will confirm you desire to install the files
