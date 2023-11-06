@@ -145,7 +145,7 @@ download_install() {
   printf "Would you like to install this as a Service for start on boot functionality? Please confirm (y/n) > "
   read -r svcResponse
   if [ "$svcResponse" = "y" ]; then
-  		printf "You will be prompted for a sudo password next to make the symbolic link to /run/ and to reload the systemctl-daemon"
+  		printf "You will be prompted for a sudo password next to make the symbolic link to /run/ and to reload the systemctl-daemon\n"
   		# Create the Symbolic link
   		sourceFile=$(readlink -f OoklaServer.service)
   		if ! sudo ln -s "${sourceFile}" "/etc/systemd/system/OoklaServer.service"; then
