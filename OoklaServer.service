@@ -3,8 +3,8 @@ Description=ooklaserver
 After=network.target
 
 [Service]
-User=root
-Group=root
+User= # Make this match the username you installed this package with
+Group= # Make this match the username you installed this package with
 WorkingDirectory=/opt/OoklaSpeedtest
 ExecStart=/opt/OoklaSpeedtest/OoklaServer --daemon --pidfile=/opt/OoklaSpeedtest/OoklaServer.pid
 PIDFile=/opt/OoklaSpeedtest/OoklaServer.pid
