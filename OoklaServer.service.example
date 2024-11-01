@@ -1,0 +1,22 @@
+[Unit]
+Description=ooklaserver
+After=network.target
+
+[Service]
+Type=forking
+
+User= # Make this match the username you installed this package with
+Group= # Make this match the username you installed this package with
+
+WorkingDirectory=/path/to/repo/ # Be sure to update the file path
+PIDFile=/path/to/repo/OoklaServer.pid # Be sure to update the file path
+ExecStart=/path/to/repo/ooklaserver.sh start # Be sure to update the file path
+ExecReload=/path/to/repo/ooklaserver.sh restart # Be sure to update the file path
+ExecStop=/path/to/repo/ooklaserver.sh stop # Be sure to update the file path
+
+TimeoutStartSec=30
+TimeoutStopSec=60
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
