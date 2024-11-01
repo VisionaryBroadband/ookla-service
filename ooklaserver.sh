@@ -267,11 +267,11 @@ stop_if_running() {
         # Did not get single PGID, falling back to Process ID
         if has_command pgrep
         then
-          pids=$(pgrep OoklaServer 2>&1 | sed -z 's/\n/ /g')
+          pids=$(pgrep OoklaServer 2>&1 | sed -z 's/\n/ /g' | xarg)
           if [ -n "${pids}" ]
           then
             echo "Additional ${DAEMON_FILE} processes running; killing (${pids})"
-            if kill -9 "${pids}"
+            if kill -9 ${pids}
             then
               echo "Successfully stopped OoklaServer"
               return 0
