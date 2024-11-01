@@ -213,11 +213,11 @@ restart_if_running() {
 stop_process() {
   daemon_pgid="$1"
   printf "%s" "Stopping $DAEMON_FILE Daemon ($daemon_pgid)"
-  kill -SIGTERM -- -${daemon_pgid} >/dev/null 2>&1
+  kill -SIGTERM -- -${daemon_pgid} 2>/dev/null 1>&2
   i=0
   while [ "$i" -lt 10 ]
   do
-    if kill -0 -${daemon_pgid} >/dev/null 2>&1
+    if kill -0 -${daemon_pgid} 2>/dev/null 1>&2
     then
       # Process is still active, sleep and recheck
       sleep 1
@@ -229,10 +229,10 @@ stop_process() {
     i=$((i+1))
   done
   # Check if the process was successfully stopped
-  if kill -0 -${daemon_pgid} >/dev/null 2>&1
+  if kill -0 -${daemon_pgid} 2>/dev/null 1>&2
   then
     # Process failed to stop, send SIGKILL
-    if kill -SIGKILL -- -${daemon_pgid} >/dev/null 2&1
+    if kill -SIGKILL -- -${daemon_pgid} 2>/dev/null 1>&2
     then
       return 0
     else
@@ -271,7 +271,7 @@ stop_if_running() {
           if [ -n "${pids}" ]
           then
             echo "Additional ${DAEMON_FILE} processes running; killing (${pids})"
-            if kill -9 ${pids}
+            if kill -9 ${pids} 2>/dev/null 1>&2
             then
               echo "Successfully stopped OoklaServer"
               return 0
