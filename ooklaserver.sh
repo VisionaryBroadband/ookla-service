@@ -252,7 +252,7 @@ stop_if_running() {
     if [ "${daemon_pid}" ]
     then
       # Get the Process Group ID (PGID) to stop all processes in the forked hierarchy
-      main_pgid=$(ps -o pgid= -p "{${daemon_pid}" | grep -o '[0-9]*')
+      main_pgid=$(ps -o pgid= -p "${daemon_pid}" | grep -o '[0-9]*')
       # Verify a PGID was returned
       if [ -n "${main_pgid}" ]
       then
