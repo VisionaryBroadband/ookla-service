@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ##################
 # OoklaServer install and management script
 # (C) 2024 Ookla
@@ -213,7 +213,7 @@ restart_if_running() {
 stop_process() {
   daemon_pgid="$1"
   printf "%s" "Stopping $DAEMON_FILE Daemon ($daemon_pgid)"
-  kill -SIGTERM -- -${daemon_pgid} 2>/dev/null 1>&2
+  kill -- -${daemon_pgid} 2>/dev/null 1>&2
   i=0
   while [ "$i" -lt 10 ]
   do
@@ -233,7 +233,7 @@ stop_process() {
   if kill -0 -${daemon_pgid} 2>/dev/null 1>&2
   then
     # Process failed to stop, send SIGKILL
-    if (kill -SIGKILL -- -${daemon_pgid} 2>/dev/null 1>&2)
+    if (kill -9 -- -${daemon_pgid} 2>/dev/null 1>&2)
     then
       return 0
     else
