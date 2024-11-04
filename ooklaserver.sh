@@ -228,11 +228,12 @@ stop_process() {
     fi
     i=$((i+1))
   done
+  echo ""
   # Check if the process was successfully stopped
   if kill -0 -${daemon_pgid} 2>/dev/null 1>&2
   then
     # Process failed to stop, send SIGKILL
-    if kill -SIGKILL -- -${daemon_pgid} 2>/dev/null 1>&2
+    if (kill -SIGKILL -- -${daemon_pgid} 2>/dev/null 1>&2)
     then
       return 0
     else
@@ -251,9 +252,9 @@ stop_if_running() {
     if [ "${daemon_pid}" ]
     then
       # Get the Process Group ID (PGID) to stop all processes in the forked hierarchy
-      main_pgid=$(ps ax -O pgid | grep "OoklaServer" | grep -v "grep" | awk '{print $2}' | uniq)
-      # Verify there was only one PGID returned
-      if [ "$(echo "${main_pgid}"|wc -l)" -eq 1 ]
+      main_pgid=$(ps -o pgid= -p "{${daemon_pid}" | grep -o '[0-9]*')
+      # Verify a PGID was returned
+      if [ -n "${main_pgid}" ]
       then
         if stop_process "${main_pgid}"
         then
@@ -264,14 +265,14 @@ stop_if_running() {
           return 1
         fi
       else
-        # Did not get single PGID, falling back to Process ID
+        # Did not get a PGID, falling back to Process ID
         if has_command pgrep
         then
           pids=$(pgrep OoklaServer 2>&1 | sed -z 's/\n/ /g' | xargs)
           if [ -n "${pids}" ]
           then
             echo "Additional ${DAEMON_FILE} processes running; killing (${pids})"
-            if kill -9 ${pids} 2>/dev/null 1>&2
+            if (pgrep OoklaServer | xargs kill -9)
             then
               echo "Successfully stopped OoklaServer"
               return 0
