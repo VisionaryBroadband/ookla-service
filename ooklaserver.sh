@@ -49,7 +49,7 @@ function setup_logging() {
   fi
 
   # Check if the LOG_FILE is writeable
-  if [[ -w "${LOG_FILE}" ]]
+  if [[ ! -w "${LOG_FILE}" ]]
   then
     if ! sudo chmod 0644 "${LOG_FILE}"
     then
@@ -345,6 +345,8 @@ function download_install() {
       return 1
     fi
   fi
+
+  # TODO: Add logrotate support to rotate LOG_FILE(s)
 }
 
 ###
