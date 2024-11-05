@@ -1,9 +1,13 @@
 [Unit]
-Description=ooklaserver
+Description=Ookla Speedtest Server
+Documentation=https://github.com/VisionaryBroadband/ookla-service
 After=network.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=forking
+Restart=on-failure
+RestartSec=5
 
 User= # Make this match the username you installed this package with
 Group= # Make this match the username you installed this package with
@@ -16,7 +20,6 @@ ExecStop=/path/to/repo/ooklaserver.sh stop # Be sure to update the file path
 
 TimeoutStartSec=30
 TimeoutStopSec=60
-Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
