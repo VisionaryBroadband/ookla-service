@@ -6,7 +6,7 @@
 # Last Update 2024-01-30
 
 # Declare Shell color variables
-RED='\033[0;31m'    # [ ${RED}FAILED${NC}  ]
+RED='\033[0;31m'    # [  ${RED}ERROR${NC}  ]
 GREEN='\033[0;32m'  # [   ${GREEN}OK${NC}    ]
 YELLOW='\033[1;33m' # [ ${YELLOW}WARNING${NC} ]
 CYAN='\033[0;36m'   # [  ${CYAN}INFO${NC}   ]
@@ -21,17 +21,43 @@ LOG_DIR="/var/log/Ookla"
 LOG_FILE="${LOG_DIR}/Ookla-Server.log"
 DEBUG="false"
 
+###
+# Function to test and verify the log_dir exists and is writeable
+###
 function setup_logging() {
-  if ! sudo mkdir -p "${LOG_DIR}"
+  local logOwner
+  # Check if the directory exists
+  if [[ ! -d "${LOG_DIR}" ]]
   then
-    return 1
-  else
-    if ! chown -R "${USER}":"${USER}" "${LOG_DIR}"
+    # Create the log directory
+    if ! sudo mkdir -p "${LOG_DIR}"
     then
+      echo -e "[  ${RED}ERROR${NC}  ] Failed to create ${LOG_DIR}"
       return 1
     fi
-    return 0
   fi
+
+  # Check if the directory is owned by the user
+  logOwner=$(stat -c %U:%G "${LOG_DIR}")
+  if [[ "${USER}:${USER}" != "${logOwner}" ]]
+  then
+    if ! sudo chown -R "${USER}:${USER}" "${LOG_DIR}"
+    then
+      echo -e "[  ${RED}ERROR${NC}  ] Failed to set user permissions on ${LOG_DIR}"
+      return 1
+    fi
+  fi
+
+  # Check if the LOG_FILE is writeable
+  if [[ -w "${LOG_FILE}" ]]
+  then
+    if ! sudo chmod 0644 "${LOG_FILE}"
+    then
+      echo -e "[  ${RED}ERROR${NC}  ] Failed to make log file writeable"
+      return 1
+    fi
+  fi
+  return 0
 }
 
 ###
@@ -509,14 +535,10 @@ function stop_if_running() {
 
 ##### Main
 
-## Create log dir for script output and service logging
-if [[ ! -d "${LOG_DIR}" ]]
+## Ensure log dir for script output and service logging
+if ! setup_logging
 then
-  if ! setup_logging
-  then
-    echo -e "[  ${RED}ERROR${NC}  ] Could not create log directory"
-    exit 1
-  fi
+  exit 1
 fi
 
 prompt=1
