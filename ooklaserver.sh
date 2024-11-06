@@ -190,7 +190,7 @@ function confirm_install() {
 # Function confirm if the user actually wishes to uninstall the OoklaServer on the OS
 ###
 function confirm_uninstall() {
-  printf "%s" "This will remove the OoklaServer services for $server_package and its' containing folder $dir_full. Please confirm (y/n) > "
+  printf "%s" "This will remove the OoklaServer service, logrotate config, log directory, and its' containing folder $dir_full. Please confirm (y/n) > "
   read -r response
   if [[ "${response}" != "y" ]]
   then
