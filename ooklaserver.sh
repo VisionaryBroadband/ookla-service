@@ -12,7 +12,7 @@ YELLOW='\033[1;33m' # [ ${YELLOW}WARNING${NC} ]
 CYAN='\033[0;36m'   # [  ${CYAN}INFO${NC}   ]
 NC='\033[0m'        # No Color
 
-OWNER=''
+OWNER=""
 BASE_DOWNLOAD_PATH="https://install.speedtest.net/ooklaserver/stable/"
 DAEMON_FILE="OoklaServer"
 scriptname=$(basename "${0}")
@@ -403,7 +403,7 @@ function download_install() {
   fi
 
   # Set the OWNER variable to maintain ownership of files
-  if ! sed -i '/OWNER=/c\OWNER='"'${USER}'" "${dir_full}/${scriptname}"
+  if ! sed -i '/OWNER=""/c\OWNER='"'${USER}'" "${dir_full}/${scriptname}"
   then
     log_write "WARN" "Failed to set OWNER on ${scriptname}, please set manually"
   fi
