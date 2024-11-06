@@ -647,12 +647,6 @@ function restart_if_running() {
 
 ##### Main
 
-## Ensure log dir for script output and service logging
-if ! setup_logging
-then
-  exit 1
-fi
-
 prompt=1
 action='help'
 while [[ "$1" != "" ]]
@@ -675,6 +669,12 @@ do
   esac
   shift
 done
+
+## Ensure log dir for script output and service logging
+if ! setup_logging
+then
+  exit 1
+fi
 
 if [[ "${action}" = "start" ]]
 then
