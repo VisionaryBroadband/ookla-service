@@ -12,12 +12,12 @@ YELLOW='\033[1;33m' # [ ${YELLOW}WARNING${NC} ]
 CYAN='\033[0;36m'   # [  ${CYAN}INFO${NC}   ]
 NC='\033[0m'        # No Color
 
-OWNER=""
 BASE_DOWNLOAD_PATH="https://install.speedtest.net/ooklaserver/stable/"
 DAEMON_FILE="OoklaServer"
-scriptname=$(basename "${0}")
 PID_FILE="${DAEMON_FILE}.pid"
 dir_full=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+scriptname=$(basename "${0}")
+OWNER=$(stat -c %U "${dir_full}/${scriptname}")
 LOG_DIR="/var/log/Ookla"
 LOG_FILE="${LOG_DIR}/Ookla-Server.log"
 VERBOSE="false"
