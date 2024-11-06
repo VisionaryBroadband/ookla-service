@@ -403,7 +403,7 @@ function download_install() {
   fi
 
   # Set the OWNER variable to maintain ownership of files
-  if ! sed -i '/OWNER=/c\OWNER='"${USER}" "${dir_full}/${scriptname}"
+  if ! sed -i '/OWNER=/c\OWNER='"'${USER}'" "${dir_full}/${scriptname}"
   then
     log_write "WARN" "Failed to set OWNER on ${scriptname}, please set manually"
   fi
