@@ -670,6 +670,12 @@ do
   shift
 done
 
+if [[ "${action}" = "help" ]]
+then
+  display_usage
+  exit 0
+fi
+
 ## Ensure log dir for script output and service logging
 if ! setup_logging
 then
@@ -701,12 +707,6 @@ then
     log_write "CRIT" "There was an Error stopping OoklaServer"
     exit 1
   fi
-fi
-
-if [[ "${action}" = "help" ]]
-then
-  display_usage
-  exit 0
 fi
 
 if [[ "${action}" = "install" ]]
