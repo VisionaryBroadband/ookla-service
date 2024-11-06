@@ -27,6 +27,15 @@ VERBOSE="false"
 ###
 function setup_logging() {
   local logOwner
+  local realOwner
+  # Check if OWNER is defined, if not assume running user
+  if [[ -n "${OWNER}" ]]
+  then
+    realOwner="${OWNER}"
+  else
+    realOwner="${USER}"
+  fi
+
   # Check if the directory exists
   if [[ ! -d "${LOG_DIR}" ]]
   then
@@ -40,9 +49,9 @@ function setup_logging() {
 
   # Check if the directory is owned by the user that installed the service
   logOwner=$(stat -c %U:%G "${LOG_DIR}")
-  if [[ "${OWNER}:${OWNER}" != "${logOwner}" ]]
+  if [[ "${realOwner}:${realOwner}" != "${logOwner}" ]]
   then
-    if ! sudo chown -R "${OWNER}:${OWNER}" "${LOG_DIR}"
+    if ! sudo chown -R "${realOwner}:${realOwner}" "${LOG_DIR}"
     then
       echo -e "[  ${RED}ERROR${NC}  ] Failed to set user permissions on ${LOG_DIR}"
       return 1
