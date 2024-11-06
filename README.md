@@ -1,40 +1,38 @@
 # ookla-service
 This is an unofficial fork of Ookla's installation script for their Ookla Speedtest Server. Some of the differences
 include:
-- Creating a Service unit for SystemCTL to auto-start the daemon on boot
+- Creating a Service unit for SystemCTL to auto-start the daemon on boot and restart if failed
 - Creating a central PID file for process termination
+- Create a logrotate conf so the scripts logs get rotated
+- Script runs on Bash instead of Posix and favors Debian based systems
+- Script has much better error handling and logging and included a debug mode for verbose console output
 
 ### Install the Ookla Service
 
-1. Create the directory you wish run this service in:
+1. Clone this repo into your home directory
    1. ```shell
-      sudo mkdir -p /opt/OoklaSpeedtest \
-      && sudo chown -R $USER:$USER /opt/OoklaSpeedtest \
-      && cd /opt/OoklaSpeedtest/ 
+      git clone https://github.com/VisionaryBroadband/ookla-service.git 
       ```
-2. Clone this repo into your working directory
+2. Enter the repo directory and run the installation script to pull the latest daemon files from Ookla
    1. ```shell
-      git clone https://github.com/VisionaryBroadband/ookla-service.git ./
-      ```
-3. Run the installation script to pull the latest daemon files from Ookla
-   1. ```shell
-      /bin/sh ooklaserver.sh install
+      cd ookla-server
+      ./ooklaserver.sh install
       ```
    2. The script will attempt to detect the platform, if that fails please select your platform from the prompt.
    3. Next the script will confirm you desire to install the files
    4. Then the script will proceed to download the latest files directly from Ookla
    5. Finally, the script will complete the installation by starting the service up and checking if all is working
-4. If the installation completed successfully, you will stop the daemon and then start and enable the service,
+3. If the installation completed successfully, you will stop the daemon and then start and enable the service,
 so it will run automatically on each boot.
    1. ```shell
-      /bin/sh ooklaserver.sh stop
+      ./ooklaserver.sh stop
       ```
    2. ```shell
       sudo systemctl start OoklaServer \
       && sudo systemctl enable OoklaServer \
       && sudo systemctl status OoklaServer
       ```
-      
+
 ### References
 
 - [OoklaServer Installation - Linux / Unix](https://support.ookla.com/hc/en-us/articles/234578528-OoklaServer-Installation-Linux-Unix)
