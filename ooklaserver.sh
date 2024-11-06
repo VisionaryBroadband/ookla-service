@@ -12,8 +12,10 @@ YELLOW='\033[1;33m' # [ ${YELLOW}WARNING${NC} ]
 CYAN='\033[0;36m'   # [  ${CYAN}INFO${NC}   ]
 NC='\033[0m'        # No Color
 
+OWNER=''
 BASE_DOWNLOAD_PATH="https://install.speedtest.net/ooklaserver/stable/"
 DAEMON_FILE="OoklaServer"
+scriptname=$(basename "${0}")
 PID_FILE="${DAEMON_FILE}.pid"
 dir_full=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 LOG_DIR="/var/log/Ookla"
@@ -36,11 +38,11 @@ function setup_logging() {
     fi
   fi
 
-  # Check if the directory is owned by the user
+  # Check if the directory is owned by the user that installed the service
   logOwner=$(stat -c %U:%G "${LOG_DIR}")
-  if [[ "${USER}:${USER}" != "${logOwner}" ]]
+  if [[ "${OWNER}:${OWNER}" != "${logOwner}" ]]
   then
-    if ! sudo chown -R "${USER}:${USER}" "${LOG_DIR}"
+    if ! sudo chown -R "${OWNER}:${OWNER}" "${LOG_DIR}"
     then
       echo -e "[  ${RED}ERROR${NC}  ] Failed to set user permissions on ${LOG_DIR}"
       return 1
@@ -390,6 +392,13 @@ function download_install() {
   else
     log_write "WARN" "'logrotate' was not detected on this system, consider installing it so logs don't fill the disk"
   fi
+
+  # Set the OWNER variable to maintain ownership of files
+  if ! sed -i '/OWNER=/c\OWNER='"${USER}" "${dir_full}/${scriptname}"
+  then
+    log_write "WARN" "Failed to set OWNER on ${scriptname}, please set manually"
+  fi
+
   return 0
 }
 
