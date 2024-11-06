@@ -6,5 +6,5 @@
 	delaycompress
 	dateext
 	notifempty
-    create 644
+	create 644
 }
