@@ -53,8 +53,11 @@ function setup_logging() {
     # Check if the LOG_FILE exists and if not create it
     if [[ ! -f "${LOG_FILE}" ]]
     then
-      echo -e "[  ${RED}ERROR${NC}  ] Failed to create ${LOG_FILE}"
-      return 1
+      if ! touch "${LOG_FILE}"
+      then
+        echo -e "[  ${RED}ERROR${NC}  ] Failed to create ${LOG_FILE}"
+        return 1
+      fi
     fi
     if ! sudo chmod 0644 "${LOG_FILE}"
     then
