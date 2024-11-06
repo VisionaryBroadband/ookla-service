@@ -196,6 +196,9 @@ function confirm_uninstall() {
   then
     log_write "INFO" "Exiting program."
     return 1
+  else
+    printf "\nYou may be prompted to input your sudo password to complete the removal of some system files\n"
+    return 0
   fi
 }
 
