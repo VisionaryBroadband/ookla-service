@@ -174,6 +174,27 @@ function detect_platform() {
 }
 
 ###
+# Function to determine where this script was invoked from
+# - $1 string Contains the directory to compare against
+###
+function detect_invocation_dir() {
+  local usersDir
+  usersDir=$(pwd)
+
+  # Check if the user is currently working in the same directory as this scripts location
+  if [[ "${usersDir}" == "${1}" ]]
+  then
+    # Check if the user is currently working in a sub directory of this scripts location
+    if [[ "${usersDir}" == "${1}/"* ]]
+    then
+      return 1
+    fi
+  fi
+
+  return 0
+}
+
+###
 # Function confirm if the user actually wishes to install the OoklaServer on the OS
 ###
 function confirm_install() {
@@ -730,6 +751,12 @@ then
     then
       exit 1
     fi
+  fi
+
+  if ! detect_invocation_dir "${dir_full}"
+  then
+    log_write "CRIT" "Script cannot be invoked from within ${dir_full} when uninstalling to prevent file lock issues"
+    exit 1
   fi
 
   if ! stop_if_running
