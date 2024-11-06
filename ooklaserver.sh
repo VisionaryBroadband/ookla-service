@@ -341,7 +341,49 @@ function download_install() {
     fi
   fi
 
-  # TODO: Add logrotate support to rotate LOG_FILE(s)
+  # Check if logrotate is installed, and if so, create a custom logrotation for Ookla-Server
+  if has_command "logrotate"
+  then
+    # Create the logrotate conf file
+    if ! cp "${dir_full}/logrotate.example" "${dir_full}/logrotate.conf"
+    then
+      log_write "WARN" "Could not create logrotate conf file"
+      return 1
+    fi
+    # Set permissions on logrotate conf file
+    if ! chmod 0644 "${dir_full}/logrotate.conf"
+    then
+      log_write "WARN" "Could not apply permissions to logrotate conf file"
+      return 1
+    fi
+    # Update the logrotate conf file to set the LOG_DIR path
+    if ! sed -i '/\/path\/to\/app.log/c\'"${LOG_FILE} {" "${dir_full}/logrotate.conf"
+    then
+      log_write "WARN" "Could not update logrotate conf with LOG_FILE"
+      return 1
+    fi
+    # Update the logrotate conf file for create with the right users
+    if ! sed -i'' -e "s,create 0640,create 0640 ${USER} ${USER},g" "${dir_full}/logrotate.conf"
+    then
+      log_write "WARN" "Could not update logrotate conf with USER"
+      return 1
+    fi
+    # Install the logrotate conf file
+    if ! sudo mv "${dir_full}/logrotate.conf" "/etc/logrotate.d/Ookla-Server"
+    then
+      log_write "WARN" "Could not create /etc/logrotate.d/Ookla-Server"
+      return 1
+    fi
+    # Change owner of logrotate file
+    if ! sudo chown root:root "/etc/logrotate.d/Ookla-Server"
+    then
+      log_write "WARN" "Could not apply ownership to logrotate conf file"
+      return 1
+    fi
+  else
+    log_write "WARN" "'logrotate' was not detected on this system, consider installing it so logs don't fill the disk"
+  fi
+  return 0
 }
 
 ###

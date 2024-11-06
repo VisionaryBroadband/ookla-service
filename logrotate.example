@@ -1,0 +1,10 @@
+/path/to/app.log {
+	weekly
+	missingok
+	rotate 8
+	compress
+	delaycompress
+	dateext
+	notifempty
+    create 644
+}
