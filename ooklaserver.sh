@@ -18,7 +18,7 @@ PID_FILE="${DAEMON_FILE}.pid"
 dir_full=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 LOG_DIR="/var/log/Ookla"
 LOG_FILE="${LOG_DIR}/Ookla-Server.log"
-DEBUG="false"
+VERBOSE="false"
 
 ###
 # Function to test and verify the log_dir exists and is writeable
@@ -70,14 +70,14 @@ function log_write() {
   if [[ -z "${1}" ]] || [[ -z "${2}" ]]
   then
     echo "${timestamp} [ WARN ] status or msg was not sent in log_write function" >> "${LOG_FILE}"
-    if [[ "${DEBUG}" == "true" ]]
+    if [[ "${VERBOSE}" == "true" ]]
     then
       echo -e "[ ${YELLOW}WARNING${NC} ] status or msg was not sent in log_write function"
     fi
     return 1
   else
     echo "${timestamp} [ ${1} ] ${2}" >> "${LOG_FILE}"
-    if [[ "${DEBUG}" == "true" ]]
+    if [[ "${VERBOSE}" == "true" ]]
     then
       case "${1}" in
         INFO)
@@ -101,19 +101,22 @@ function log_write() {
 ###
 function display_usage() {
   echo "OoklaServer installation and Management Script"
-  echo  "Usage:"
-  echo  "$0 [-f|--force] [-d|--debug] command"
-  echo  ""
-  echo  "  Valid commands: install, start, stop, restart"
-  echo  "   install - downloads and installs OoklaServer"
-  echo  "   start   - starts OoklaServer if not running"
-  echo  "   stop    - stops OoklaServer if running"
-  echo  "   restart - stops OoklaServer if running, and restarts it"
-  echo  " "
-  echo  "  -f|--force           Do not prompt before install"
-  echo  "  -h|--help            This help"
-  echo  "  -d|--debug           Prints debuggin info to console"
-  echo  ""
+  echo "  Log output: ${LOG_FILE}"
+  echo ""
+  echo "Usage:"
+  echo "$0 [-f|--force] [-v|--verbose] command"
+  echo ""
+  echo "  Valid commands: install, start, stop, restart"
+  echo "   install   - downloads and installs OoklaServer, silent install by default, use -v to see progress"
+  echo "   start     - starts OoklaServer if not running"
+  echo "   stop      - stops OoklaServer if running"
+  echo "   restart   - stops OoklaServer if running, and restarts it"
+  echo "   uninstall - uninstalls OoklaServer, best paired with -v"
+  echo ""
+  echo "  -f|--force           Do not prompt before install"
+  echo "  -h|--help            This help"
+  echo "  -v|--verbose         Prints to console and logs"
+  echo ""
 }
 
 ###
@@ -175,6 +178,19 @@ function detect_platform() {
 ###
 function confirm_install() {
   printf "%s" "This will install the Ookla server for $server_package to ${dir_full}. Please confirm (y/n) > "
+  read -r response
+  if [[ "${response}" != "y" ]]
+  then
+    log_write "INFO" "Exiting program."
+    return 1
+  fi
+}
+
+###
+# Function confirm if the user actually wishes to uninstall the OoklaServer on the OS
+###
+function confirm_uninstall() {
+  printf "%s" "This will remove the OoklaServer services for $server_package and its' containing folder $dir_full. Please confirm (y/n) > "
   read -r response
   if [[ "${response}" != "y" ]]
   then
@@ -342,6 +358,81 @@ function download_install() {
     log_write "WARN" "'logrotate' was not detected on this system, consider installing it so logs don't fill the disk"
   fi
   return 0
+}
+
+###
+# Function to clean up installed files and remove the OoklaServer service from the OS
+###
+function uninstall {
+  local errors
+  errors=0
+
+  # Disable the service if it exists
+  if [[ $(systemctl list-units --all -t service --full --no-legend "OoklaServer.service" | sed 's/^\s*//g' | cut -f1 -d' ') == "OoklaServer.service" ]]
+  then
+    if ! sudo systemctl disable OoklaServer
+    then
+      log_write "WARN" "Failed to disable OoklaServer service at /etc/systemd/system/OoklaServer.service"
+      ((errors++))
+    else
+      log_write "OKAY" "Disabled OoklaServer.service"
+    fi
+  else
+    log_write "INFO" "OoklaServer.service not found"
+  fi
+
+  # Remove the logrotate conf file if it exists
+  if [[ -f "/etc/logrotate.d/Ookla-Server" ]]
+  then
+    if ! sudo rm -rf "/etc/logrotate.d/Ookla-Server"
+    then
+      log_write "WARN" "Failed to remove logrotate conf file at /etc/logrotate.d/Ookla-Server"
+      ((errors++))
+    else
+      log_write "OKAY" "Removed logrotate conf file"
+    fi
+  else
+    log_write "INFO" "logrotate conf file not found"
+  fi
+
+  # Remove the script dir and the downloaded files
+  if [[ -d "${dir_full}" ]]
+  then
+    if ! rm -rf "${dir_full}"
+    then
+      log_write "WARN" "Failed to remove the ookla-service dir at ${dir_full}"
+      ((errors++))
+    else
+      log_write "OKAY" "Cleaned up ookla-service dir"
+    fi
+  else
+    log_write "INFO" "${dir_full} dir not found"
+  fi
+
+
+  # Remove logging dir
+  if [[ -d "${LOG_DIR}" ]]
+  then
+    if ! sudo rm -rf "${LOG_DIR}"
+    then
+      log_write "WARN" "Failed to remove the log dir at ${LOG_DIR}"
+      ((errors++))
+    else
+      echo -e "[   ${GREEN}OK${NC}    ] Removed the log dir"
+    fi
+  else
+    echo -e "[  ${CYAN}INFO${NC}   ] ${LOG_DIR} not found"
+  fi
+
+  # Report on errors
+  if [[ "${errors}" -gt 0 ]]
+  then
+    echo -e "[ ${YELLOW}WARNING${NC} ] There were [${errors}] errors during uninstallation"
+    return 1
+  else
+    echo -e "[   ${GREEN}OK${NC}    ] Successfully uninstalled OoklaServer"
+    return 0
+  fi
 }
 
 ###
@@ -548,11 +639,12 @@ do
     start ) action='start';;
     restart ) action='restart';;
     help ) action='help';;
+    uninstall ) action='uninstall';;
     -f | --force ) prompt=0;;
     -h | --help )
       display_usage
       exit 0;;
-    -d | --debug ) DEBUG="true";;
+    -v | --verbose ) VERBOSE="true";;
     * )
       display_usage
       exit 1;;
@@ -626,4 +718,26 @@ then
   printf "\n\nto ensure your daemon starts automatically when the system reboots\n"
   exit 0
 fi
+
+if [[ "${action}" = "uninstall" ]]
+then
+  if [[ "${prompt}" = "1" ]]
+  then
+    if ! confirm_uninstall
+    then
+      exit 1
+    fi
+  fi
+
+  if ! stop_if_running
+  then
+    exit 1
+  fi
+
+  if ! uninstall
+  then
+    exit 1
+  fi
+fi
+
 exit 0
