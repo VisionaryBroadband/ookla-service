@@ -14,7 +14,6 @@ NC='\033[0m'        # No Color
 
 BASE_DOWNLOAD_PATH="https://install.speedtest.net/ooklaserver/stable/"
 DAEMON_FILE="OoklaServer"
-INSTALL_DIR=''
 PID_FILE="${DAEMON_FILE}.pid"
 dir_full=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 LOG_DIR="/var/log/Ookla"
@@ -103,7 +102,7 @@ function log_write() {
 function display_usage() {
   echo "OoklaServer installation and Management Script"
   echo  "Usage:"
-  echo  "$0 [-f|--force] [-i|--installdir <dir>] command"
+  echo  "$0 [-f|--force] [-d|--debug] command"
   echo  ""
   echo  "  Valid commands: install, start, stop, restart"
   echo  "   install - downloads and installs OoklaServer"
@@ -112,7 +111,6 @@ function display_usage() {
   echo  "   restart - stops OoklaServer if running, and restarts it"
   echo  " "
   echo  "  -f|--force           Do not prompt before install"
-  echo  "  -i|--install <dir>   Install to specified folder instead of the current folder"
   echo  "  -h|--help            This help"
   echo  "  -d|--debug           Prints debuggin info to console"
   echo  ""
@@ -176,52 +174,12 @@ function detect_platform() {
 # Function confirm if the user actually wishes to install the OoklaServer on the OS
 ###
 function confirm_install() {
-  if [[ "${INSTALL_DIR}" != "" ]]
-  then
-    printf "%s" "This will install the Ookla server for $server_package to folder $INSTALL_DIR. Please confirm (y/n) > "
-  else
-    printf "%s" "This will install the Ookla server for $server_package to the current folder. Please confirm (y/n) > "
-  fi
+  printf "%s" "This will install the Ookla server for $server_package to ${dir_full}. Please confirm (y/n) > "
   read -r response
   if [[ "${response}" != "y" ]]
   then
     log_write "INFO" "Exiting program."
     return 1
-  fi
-}
-
-###
-# Function to change the working directory to the desired install directory
-###
-function goto_speedtest_folder() {
-  # determine if base install folder exists
-  local dir_base
-  local scriptname
-  dir_base=$(basename "${dir_full}")
-
-  if [[ "${INSTALL_DIR}" != "" ]]
-  then
-    log_write "INFO" "Checking Directory Structure"
-    if [[ "${dir_base}" != "${INSTALL_DIR}" ]]
-    then
-      if [[ ! -d "${INSTALL_DIR}" ]]
-      then
-        if ! mkdir -p "${INSTALL_DIR}"
-        then
-          log_write "WARN" "Failed to create the installation directory"
-          return 1
-        else
-          # copy script to folder
-          scriptname=$(basename "${0}")
-          if ! cp "${scriptname}" "${INSTALL_DIR}"
-          then
-            log_write "WARN" "Failed to copy files into install directory"
-            return 1
-          fi
-        fi
-      fi
-      cd "${INSTALL_DIR}" || log_write "WARN" "Failed install to ${INSTALL_DIR}" && return 1
-    fi
   fi
 }
 
@@ -590,9 +548,6 @@ do
     start ) action='start';;
     restart ) action='restart';;
     help ) action='help';;
-    -i | --installdir )
-      shift
-      INSTALL_DIR=$1;;
     -f | --force ) prompt=0;;
     -h | --help )
       display_usage
@@ -645,18 +600,13 @@ then
     log_write "CRIT" "There was an Error detecting platform, please check compatibility and try again."
     exit 1
   fi
+
   if [[ "${prompt}" = "1" ]]
   then
     if ! confirm_install
     then
       exit 1
     fi
-  fi
-
-  if ! goto_speedtest_folder
-  then
-    log_write "CRIT" "Unable to use given Install Directory, please check your input and try again."
-    exit 1
   fi
 
   if ! download_install
