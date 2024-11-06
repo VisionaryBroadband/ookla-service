@@ -47,12 +47,18 @@ function setup_logging() {
     fi
   fi
 
-  # Check if the LOG_FILE is writeable
+  # Check if the LOG_FILE exists and is writeable
   if [[ ! -w "${LOG_FILE}" ]]
   then
+    # Check if the LOG_FILE exists and if not create it
+    if [[ ! -f "${LOG_FILE}" ]]
+    then
+      echo -e "[  ${RED}ERROR${NC}  ] Failed to create ${LOG_FILE}"
+      return 1
+    fi
     if ! sudo chmod 0644 "${LOG_FILE}"
     then
-      echo -e "[  ${RED}ERROR${NC}  ] Failed to make log file writeable"
+      echo -e "[  ${RED}ERROR${NC}  ] Failed to make ${LOG_FILE} writeable"
       return 1
     fi
   fi
