@@ -291,12 +291,12 @@ function download_install() {
   read -r svcResponse
   if [[ "${svcResponse}" = "y" ]]
   then
-    if ! cp "OoklaServer.service.example" "OoklaServer.service"
+    if ! cp "${dir_full}/OoklaServer.service.example" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to create OoklaServer.service file from example, please check permissions and try again"
       return 1
     else
-      if ! sudo chmod 664 "OoklaServer.service"
+      if ! sudo chmod 664 "${dir_full}/OoklaServer.service"
       then
         log_write "WARN" "Failed to apply permissions to OoklaServer.service file"
         return 1
@@ -304,33 +304,28 @@ function download_install() {
     fi
     printf "You may be prompted for a sudo password next to make the symbolic link to /etc/systemd/ and to reload the systemctl-daemon\n"
     # Update the USER/GROUP in the service file
-    if ! sed -i '/User= #/c\User='"${USER}" 'OoklaServer.service'
+    if ! sed -i '/User= #/c\User='"${USER}" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set the user on OoklaServer.service, please set manually"
     fi
-    if ! sed -i '/Group= #/c\Group='"${USER}" 'OoklaServer.service'
+    if ! sed -i '/Group= #/c\Group='"${USER}" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set the group on OoklaServer.service, please set manually"
     fi
-    if ! sed -i '/WorkingDirectory=/c\WorkingDirectory='"${dir_full}/" 'OoklaServer.service'
+    # Set the WorkingDirectory in the service file
+    if ! sed -i '/WorkingDirectory=/c\WorkingDirectory='"${dir_full}/" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set filepath on WorkingDirectory in OoklaServer.service, please set manually"
     fi
-    if ! sed -i '/PIDFile=/c\PIDFile='"${dir_full}/OoklaServer.pid" 'OoklaServer.service'
+    # Set the PIDFile in the service file
+    if ! sed -i '/PIDFile=/c\PIDFile='"${dir_full}/OoklaServer.pid" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set filepath on PIDFile in OoklaServer.service, please set manually"
     fi
-    if ! sed -i '/ExecStart=/c\ExecStart='"${dir_full}/ooklaserver.sh start" 'OoklaServer.service'
+    # Set the ExecStart in the service file
+    if ! sed -i '/ExecStart=/c\ExecStart='"${dir_full}/ooklaserver.sh start" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set filepath on ExecStart cmd in OoklaServer.service, please set manually"
-    fi
-    if ! sed -i '/ExecReload=/c\ExecReload='"${dir_full}/ooklaserver.sh restart" 'OoklaServer.service'
-    then
-      log_write "WARN" "Failed to set filepath on ExecReload cmd in OoklaServer.service, please set manually"
-    fi
-    if ! sed -i '/ExecStop=/c\ExecStop='"${dir_full}/ooklaserver.sh stop" 'OoklaServer.service'
-    then
-      log_write "WARN" "Failed to set filepath on ExecStop cmd in OoklaServer.service, please set manually"
     fi
     # Create the Symbolic link
     if ! sudo ln -s "${dir_full}/OoklaServer.service" "/etc/systemd/system/OoklaServer.service"
@@ -470,20 +465,6 @@ function start_if_not_running() {
 }
 
 ###
-# Function to handle the restart of the OoklaServer
-###
-function restart_if_running() {
-  if ! stop_if_running
-  then
-    return 1
-  fi
-  if ! start
-  then
-    return 1
-  fi
-}
-
-###
 # Function to stop the OoklaServer if it is running
 ###
 function stop_if_running() {
@@ -532,6 +513,20 @@ function stop_if_running() {
         fi
       fi
     fi
+  fi
+}
+
+###
+# Function to handle the restart of the OoklaServer
+###
+function restart_if_running() {
+  if ! stop_if_running
+  then
+    return 1
+  fi
+  if ! start
+  then
+    return 1
   fi
 }
 

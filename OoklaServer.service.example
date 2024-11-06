@@ -2,24 +2,41 @@
 Description=Ookla Speedtest Server
 Documentation=https://github.com/VisionaryBroadband/ookla-service
 After=network.target
-StartLimitIntervalSec=0
 
 [Service]
+# Set to forking because the script spawns the Daemon process after running
 Type=forking
+# Set to yes because the script will exit but the Daemon will remain
+RemainAfterExit=yes
+# Set to on-failure to have systemd attempt to restart the Daemon in-case it crashes
 Restart=on-failure
-RestartSec=5
+# Set to 15 to accommodate the 10 second delay in the script for start-up
+RestartSec=15
+# Set to 15 to accommodate the 10 second delay in the script
+TimeoutSec=15
 
-User= # Make this match the username you installed this package with
-Group= # Make this match the username you installed this package with
+# Set to same directory the script, Daemon, PIDFile are located in
+WorkingDirectory=/path/to/ookla-service/
+# Set the full file path to the OoklaServer.pid file
+PIDFile=/path/to/ookla-service/OoklaServer.pid
+# Set the full file path to the ooklaserver.sh script
+ExecStart=/path/to/ookla-service/ooklaserver.sh start
+# systemd doesn't play nice with the script killing the process, so let systemd handle it directly
+ExecStop=/bin/kill -9 -- -${MAINPID}
+# Tell systemd to allow the main process to be terminated with SIGKILL(9)
+SuccessExitStatus=0 9
 
-WorkingDirectory=/path/to/repo/ # Be sure to update the file path
-PIDFile=/path/to/repo/OoklaServer.pid # Be sure to update the file path
-ExecStart=/path/to/repo/ooklaserver.sh start # Be sure to update the file path
-ExecReload=/path/to/repo/ooklaserver.sh restart # Be sure to update the file path
-ExecStop=/path/to/repo/ooklaserver.sh stop # Be sure to update the file path
+# Set to the $USER that owns the WorkingDirectory and its contents and /var/log/Ookla
+User=
+# Set to the $USER that owns the WorkingDirectory and its contents and /var/log/Ookla
+Group=
 
-TimeoutStartSec=30
-TimeoutStopSec=60
+# Prevent systemd from sending any signals to the main process automatically
+KillMode=none
+# Prevent systemd from sending any errant SIGKILLs
+SendSIGKILL=no
+# Prevents potential issues caused by broken pipes when the Daemon doesn't handle certain signals
+IgnoreSIGPIPE=yes
 
 [Install]
 WantedBy=multi-user.target
