@@ -421,7 +421,7 @@ function uninstall {
   # Disable the service if it exists
   if [[ $(systemctl list-units --all -t service --full --no-legend "OoklaServer.service" | sed 's/^\s*//g' | cut -f1 -d' ') == "OoklaServer.service" ]]
   then
-    if ! sudo systemctl disable OoklaServer
+    if ! sudo systemctl disable OoklaServer 2>/dev/null 1>&2
     then
       log_write "WARN" "Failed to disable OoklaServer service at /etc/systemd/system/OoklaServer.service"
       ((errors++))
@@ -435,7 +435,7 @@ function uninstall {
   # Remove the logrotate conf file if it exists
   if [[ -f "/etc/logrotate.d/Ookla-Server" ]]
   then
-    if ! sudo rm -rf "/etc/logrotate.d/Ookla-Server"
+    if ! sudo rm -rf "/etc/logrotate.d/Ookla-Server" 2>/dev/null 1>&2
     then
       log_write "WARN" "Failed to remove logrotate conf file at /etc/logrotate.d/Ookla-Server"
       ((errors++))
@@ -449,7 +449,7 @@ function uninstall {
   # Remove the script dir and the downloaded files
   if [[ -d "${dir_full}" ]]
   then
-    if ! rm -rf "${dir_full}"
+    if ! rm -rf "${dir_full}" 2>/dev/null 1>&2
     then
       log_write "WARN" "Failed to remove the ookla-service dir at ${dir_full}"
       ((errors++))
@@ -464,7 +464,7 @@ function uninstall {
   # Remove logging dir
   if [[ -d "${LOG_DIR}" ]]
   then
-    if ! sudo rm -rf "${LOG_DIR}"
+    if ! sudo rm -rf "${LOG_DIR}" 2>/dev/null 1>&2
     then
       log_write "WARN" "Failed to remove the log dir at ${LOG_DIR}"
       ((errors++))
