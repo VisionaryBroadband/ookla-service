@@ -15,8 +15,8 @@ include:
       ```
 2. Enter the repo directory and run the installation script to pull the latest daemon files from Ookla
    1. ```shell
-      cd ookla-server
-      ./ooklaserver.sh -v install
+      cd ookla-service \
+      && ./ooklaserver.sh -v install
       ```
    2. The script will attempt to detect the platform, if that fails please select your platform from the prompt.
    3. Next the script will confirm you desire to install the files
