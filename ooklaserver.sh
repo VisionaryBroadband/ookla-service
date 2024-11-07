@@ -204,6 +204,9 @@ function detect_invocation_dir() {
   # Check if the user is currently working in the same directory as this scripts location
   if [[ "${usersDir}" == "${1}" ]]
   then
+    # User is in the exact same directory
+    return 1
+  else
     # Check if the user is currently working in a sub directory of this scripts location
     if [[ "${usersDir}" == "${1}/"* ]]
     then
