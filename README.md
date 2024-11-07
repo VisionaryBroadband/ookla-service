@@ -58,10 +58,6 @@ sudo systemctl status OoklaServer
 which will result in an output like this:
 <img src="images/Ookla-Server-Stopped.jpg">
 
-
-Nov 06 17:26:30 csprwyvstl-speedtest01 systemd[1]: Starting OoklaServer.service - Ookla Speedtest Server...
-Nov 06 17:26:31 csprwyvstl-speedtest01 systemd[1]: Started OoklaServer.service - Ookla Speedtest Server.
-      
 ### Uninstall the Ookla Service
 
 The script has a built-in uninstaller that will clean up the SystemD service unit it created, the LogRotate unit it created, and the log directory that was also created. <mark>If you wish to retain the logs or this repo on your system, do not run this command!</mark>
