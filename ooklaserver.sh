@@ -402,12 +402,6 @@ function download_install() {
     log_write "WARN" "'logrotate' was not detected on this system, consider installing it so logs don't fill the disk"
   fi
 
-  # Set the OWNER variable to maintain ownership of files
-  if ! sed -i '/OWNER=""/c\OWNER='"'${USER}'" "${dir_full}/${scriptname}"
-  then
-    log_write "WARN" "Failed to set OWNER on ${scriptname}, please set manually"
-  fi
-
   return 0
 }
 
