@@ -322,11 +322,11 @@ function download_install() {
     fi
     printf "You may be prompted for a sudo password next to make the symbolic link to /etc/systemd/ and to reload the systemctl-daemon\n"
     # Update the USER/GROUP in the service file
-    if ! sed -i '/User= #/c\User='"${USER}" "${dir_full}/OoklaServer.service"
+    if ! sed -i '/User=/c\User='"${USER}" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set the user on OoklaServer.service, please set manually"
     fi
-    if ! sed -i '/Group= #/c\Group='"${USER}" "${dir_full}/OoklaServer.service"
+    if ! sed -i '/Group=/c\Group='"${USER}" "${dir_full}/OoklaServer.service"
     then
       log_write "WARN" "Failed to set the group on OoklaServer.service, please set manually"
     fi
