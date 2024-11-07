@@ -33,6 +33,43 @@ so it will run automatically on each boot.
       && sudo systemctl status OoklaServer
       ```
 
+### Checking the status of the Ookla Service
+This script will create and deploy a SystemD service unit that will handle invoking the script, terminating the processes, as well as restarting the processes if they fail. However, due to the lack of systemd's watchdog implementation in Ookla's Daemon the only healthcheck that systemd can perform is to monitor the main process via PIDFILE and so long as that process is running it is treated as **ACTIVE**. If that process crashes or is killed outside systemd then it will trigger the restart function and attempt to start the service up repeatedly. If you use systemctl to stop the service then it will report as **INACTIVE (dead)** as it should be, but this is only possible if systemd is the one to terminate the process.
+
+The status can be checked with this command:
+```shell
+sudo systemctl status OoklaServer
+```
+which will result in an output like this:
+<img src="images/Ookla-Server-Running.jpg">
+
+If the Daemon has crashed or was killed externally, SystemD should try to restart it automatically and that would look like this
+<img src="images/Ookla-Server-Restarting.jpg">
+
+### Starting and Stopping the Ookla Service
+You can start the service with this command: 
+```shell
+sudo systemctl start OoklaServer
+```
+You can stop the service with this command:
+```shell
+sudo systemctl status OoklaServer
+```
+which will result in an output like this:
+<img src="images/Ookla-Server-Stopped.jpg">
+
+
+Nov 06 17:26:30 csprwyvstl-speedtest01 systemd[1]: Starting OoklaServer.service - Ookla Speedtest Server...
+Nov 06 17:26:31 csprwyvstl-speedtest01 systemd[1]: Started OoklaServer.service - Ookla Speedtest Server.
+      
+### Uninstall the Ookla Service
+
+The script has a built-in uninstaller that will clean up the SystemD service unit it created, the LogRotate unit it created, and the log directory that was also created. <mark>If you wish to retain the logs or this repo on your system, do not run this command!</mark>
+```shell
+~/ookla-service/ooklaserver.sh -v uninstall
+```
+
+
 ### References
 
 - [OoklaServer Installation - Linux / Unix](https://support.ookla.com/hc/en-us/articles/234578528-OoklaServer-Installation-Linux-Unix)
