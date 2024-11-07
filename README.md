@@ -28,8 +28,8 @@ so it will run automatically on each boot.
       ./ooklaserver.sh -v stop
       ```
    2. ```shell
-      sudo systemctl start OoklaServer \
-      && sudo systemctl enable OoklaServer \
+      sudo systemctl enable OoklaServer \
+      && sudo systemctl start OoklaServer \
       && sudo systemctl status OoklaServer
       ```
 
